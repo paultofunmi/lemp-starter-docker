@@ -1,0 +1,44 @@
+version: "2"
+services:
+  nginx:
+      build:
+          context: ./nginx
+      ports:
+          - "8080:80"
+      volumes:
+          - ./app:/var/app
+          - ./storage/logs/access.log:/var/log/nginx/access.log
+          - ./storage/logs/error.log:/var/log/nginx/error.log
+      links: 
+          - fpm
+  fpm:
+      build:
+          context: ./fpm
+      volumes:
+          - ./app:/var/app
+      expose:
+          - "9000"
+      links: 
+          - db
+      environment:
+          - "DB_HOST=db"
+          - "DB_DATABASE=laravel"
+  phpmyadmin: 
+      image: phpmyadmin/phpmyadmin
+      ports: 
+          - "8081:80"
+      links: 
+          - db
+  db:
+      image: mariadb
+      environment:
+          - MYSQL_ROOT_PASSWORD=toor
+          - MYSQL_DATABASE=laravel_dump
+          - MYSQL_USER=homestead
+          - MYSQL_PASSWORD=secret
+      volumes:
+          - ./storage/database:/var/lib/mysql
+
+
+  
+
